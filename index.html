@@ -7,6 +7,7 @@
 <title>Ludora</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Ludora rassemble tous vos jeux PC et émulés dans une seule bibliothèque, pilotable à la souris comme à la manette.">
+<script>try { const t = localStorage.getItem('ludora-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t } catch (e) {}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap">
@@ -30,6 +31,20 @@
   --amber-line: #3a3220;
   --ok: #5be0a4;
   --on-accent: #ffffff;
+  --accent-line: #34306a;
+  --chrome: #0f1218;
+  --glass: rgba(11, 13, 18, .82);
+  --overlay: rgba(11, 13, 18, .82);
+  --float: rgba(18, 21, 29, .94);
+  --shadow: rgba(0, 0, 0, .7);
+  --glow: rgba(107, 78, 255, .22);
+  --halo: rgba(107, 78, 255, .16);
+  --amber-wash: rgba(247, 196, 103, .07);
+  --amber-hover: rgba(247, 196, 103, .05);
+  --sheet: rgba(11, 13, 18, .55);
+  --ok-wash: rgba(91, 224, 164, .05);
+  --ok-ring: rgba(91, 224, 164, .55);
+  --sun-o: 1; --sun-r: 0deg; --moon-o: 0; --moon-r: 90deg;
   --display: 'Sora', 'Segoe UI', system-ui, sans-serif;
   --body: 'Manrope', 'Segoe UI', system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
@@ -37,6 +52,33 @@
   --wrap: 1160px;
   --radius: 14px;
   color-scheme: dark;
+}
+/* Mode clair : préférence du système, ou choix explicite via le bouton (data-theme) */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f5f5fa; --panel: #ffffff; --raised: #eceef5; --line: #dde0ea;
+    --text: #11131a; --soft: #2b303d; --muted: #5d6475;
+    --accent: #6b4eff; --accent-hover: #5b3ef5; --accent-text: #5134e0; --accent-soft: #ece8ff; --accent-line: #c7bdff;
+    --amber: #8f5f00; --amber-soft: #fbf6ea; --amber-line: #e8dcbd; --ok: #11845a;
+    --chrome: #f0f1f6; --glass: rgba(245, 245, 250, .84); --overlay: rgba(255, 255, 255, .92); --float: rgba(255, 255, 255, .96);
+    --shadow: rgba(40, 36, 90, .2); --glow: rgba(107, 78, 255, .13); --halo: rgba(107, 78, 255, .1);
+    --amber-wash: rgba(200, 140, 20, .08); --amber-hover: rgba(143, 95, 0, .06); --sheet: rgba(255, 255, 255, .72);
+    --ok-wash: rgba(17, 132, 90, .07); --ok-ring: rgba(17, 132, 90, .45);
+    --sun-o: 0; --sun-r: -90deg; --moon-o: 1; --moon-r: 0deg;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f5f5fa; --panel: #ffffff; --raised: #eceef5; --line: #dde0ea;
+  --text: #11131a; --soft: #2b303d; --muted: #5d6475;
+  --accent: #6b4eff; --accent-hover: #5b3ef5; --accent-text: #5134e0; --accent-soft: #ece8ff; --accent-line: #c7bdff;
+  --amber: #8f5f00; --amber-soft: #fbf6ea; --amber-line: #e8dcbd; --ok: #11845a;
+  --chrome: #f0f1f6; --glass: rgba(245, 245, 250, .84); --overlay: rgba(255, 255, 255, .92); --float: rgba(255, 255, 255, .96);
+  --shadow: rgba(40, 36, 90, .2); --glow: rgba(107, 78, 255, .13); --halo: rgba(107, 78, 255, .1);
+  --amber-wash: rgba(200, 140, 20, .08); --amber-hover: rgba(143, 95, 0, .06); --sheet: rgba(255, 255, 255, .72);
+  --ok-wash: rgba(17, 132, 90, .07); --ok-ring: rgba(17, 132, 90, .45);
+  --sun-o: 0; --sun-r: -90deg; --moon-o: 1; --moon-r: 0deg;
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -48,6 +90,7 @@ body {
   font: 400 1rem/1.6 var(--body);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+  transition: background-color .35s ease, color .35s ease;
 }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; border-radius: 6px; }
@@ -84,7 +127,7 @@ p { margin: 0; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
 .top {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9;
-  background: rgba(11, 13, 18, .82);
+  background: var(--glass);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
@@ -99,14 +142,23 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nav a:hover { color: var(--text); }
 .nav a:hover::after { transform: scaleX(1); }
 .top .btn { padding: 9px 16px; font-size: 0.88rem; }
-@media (max-width: 760px) { .nav { display: none; } .top .btn { margin-left: auto; } }
+.theme-toggle {
+  position: relative; flex: none; width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--line); background: transparent; color: var(--soft); cursor: pointer;
+  transition: border-color .25s ease, color .25s ease, transform .35s var(--ease);
+}
+.theme-toggle:hover { border-color: var(--muted); color: var(--text); transform: rotate(-12deg); }
+.theme-toggle svg { position: absolute; inset: 0; margin: auto; width: 18px; height: 18px; transition: opacity .35s ease, transform .5s var(--ease); }
+.theme-toggle .sun { opacity: var(--sun-o); transform: rotate(var(--sun-r)); }
+.theme-toggle .moon { opacity: var(--moon-o); transform: rotate(var(--moon-r)); }
+@media (max-width: 760px) { .nav { display: none; } .theme-toggle { margin-left: auto; } }
 
 /* ---------- Héros ---------- */
 .hero { position: relative; isolation: isolate; padding-block: 72px 48px; }
 .hero::before {
   content: ""; position: absolute; z-index: -1; pointer-events: none;
   width: 760px; height: 560px; max-width: 100%; right: 0; top: -80px;
-  background: radial-gradient(closest-side, rgba(107, 78, 255, .22), transparent 70%);
+  background: radial-gradient(closest-side, var(--glow), transparent 70%);
   filter: blur(10px);
 }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 56px; align-items: center; }
@@ -123,17 +175,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   position: relative;
   border: 1px solid var(--line); border-radius: 16px;
   background: var(--panel);
-  box-shadow: 0 40px 80px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.02);
+  box-shadow: 0 40px 80px -30px var(--shadow);
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transform-style: preserve-3d;
   will-change: transform;
 }
 .app-frame { border-radius: 16px; overflow: hidden; }
-.app-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: #0f1218; font: 600 0.78rem/1 var(--display); color: var(--muted); }
+.app-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--chrome); font: 600 0.78rem/1 var(--display); color: var(--muted); }
 .app-bar img { width: 16px; height: 16px; border-radius: 4px; }
 .app-bar .win { margin-left: auto; display: flex; gap: 16px; color: var(--muted); font: 400 0.8rem/1 var(--mono); }
 .app-body { display: grid; grid-template-columns: 150px minmax(0, 1fr); }
-.app-side { border-right: 1px solid var(--line); padding: 14px 10px; display: grid; gap: 2px; align-content: start; background: #0f1218; }
+.app-side { border-right: 1px solid var(--line); padding: 14px 10px; display: grid; gap: 2px; align-content: start; background: var(--chrome); }
 .app-side span { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
 .app-side span.on { background: var(--accent-soft); color: var(--text); }
 .app-side svg { width: 15px; height: 15px; flex: none; }
@@ -147,15 +199,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .covers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .cover { position: relative; aspect-ratio: 2 / 3; max-width: 100%; border-radius: 8px; overflow: hidden; background: var(--raised); transition: transform .35s var(--ease), box-shadow .35s ease; }
 .cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s var(--ease); }
-.cover:hover { transform: translateY(-4px); box-shadow: 0 14px 24px -12px rgba(0,0,0,.9), 0 0 0 2px var(--accent); z-index: 1; }
+.cover:hover { transform: translateY(-4px); box-shadow: 0 14px 24px -12px var(--shadow), 0 0 0 2px var(--accent); z-index: 1; }
 .cover:hover img { transform: scale(1.05); }
-.cover .tag { position: absolute; left: 6px; bottom: 6px; padding: 3px 6px; border-radius: 5px; font: 500 0.58rem/1 var(--mono); background: rgba(11,13,18,.82); color: var(--soft); }
+.cover .tag { position: absolute; left: 6px; bottom: 6px; padding: 3px 6px; border-radius: 5px; font: 500 0.58rem/1 var(--mono); background: var(--overlay); color: var(--soft); }
 .session {
   position: absolute; right: -18px; bottom: 28px;
   display: flex; align-items: center; gap: 12px;
   padding: 10px 16px 10px 10px; border-radius: 12px;
-  background: rgba(18,21,29,.94); border: 1px solid var(--line);
-  box-shadow: 0 18px 40px -12px rgba(0,0,0,.8);
+  background: var(--float); border: 1px solid var(--line);
+  box-shadow: 0 18px 40px -12px var(--shadow);
   transform: translateZ(40px);
 }
 .session img { width: 34px; height: 51px; object-fit: cover; border-radius: 5px; }
@@ -201,9 +253,9 @@ section.block { padding-block: 104px; }
 }
 .feature::before {
   content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s ease;
-  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(107, 78, 255, .16), transparent 70%);
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), var(--halo), transparent 70%);
 }
-.feature:hover { transform: translateY(-4px); border-color: #34306a; }
+.feature:hover { transform: translateY(-4px); border-color: var(--accent-line); }
 .feature:hover::before { opacity: 1; }
 .feature svg { width: 26px; height: 26px; color: var(--accent-text); transition: transform .35s var(--ease); }
 .feature:hover svg { transform: scale(1.12) rotate(-4deg); }
@@ -215,7 +267,7 @@ section.block { padding-block: 104px; }
 /* ---------- Conservatoire ---------- */
 .archive {
   background:
-    radial-gradient(1200px 400px at 85% 0%, rgba(247,196,103,.07), transparent 70%),
+    radial-gradient(1200px 400px at 85% 0%, var(--amber-wash), transparent 70%),
     var(--amber-soft);
   border-block: 1px solid var(--amber-line);
 }
@@ -227,11 +279,11 @@ section.block { padding-block: 104px; }
 .archive .lead { font-size: 1.08rem; color: var(--soft); max-width: 36em; }
 @media (max-width: 900px) { .archive-intro { grid-template-columns: minmax(0, 1fr); gap: 36px; } }
 
-.ledger { border: 1px solid var(--amber-line); border-radius: var(--radius); background: rgba(11,13,18,.55); overflow: hidden; }
+.ledger { border: 1px solid var(--amber-line); border-radius: var(--radius); background: var(--sheet); overflow: hidden; }
 .ledger-head { display: flex; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--amber-line); font: 500 0.72rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--amber); }
 .ledger ol { list-style: none; margin: 0; padding: 0; }
 .ledger li { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 14px; padding: 13px 18px; border-bottom: 1px dashed var(--amber-line); transition: background-color .2s ease, padding-left .3s var(--ease); }
-.ledger li:hover { background: rgba(247,196,103,.05); padding-left: 24px; }
+.ledger li:hover { background: var(--amber-hover); padding-left: 24px; }
 .ledger li:last-child { border-bottom: 0; }
 .ledger time { font: 500 0.8rem/1.5 var(--mono); color: var(--amber); font-variant-numeric: tabular-nums; }
 .ledger b { display: block; color: var(--text); font-weight: 600; font-size: 0.95rem; }
@@ -257,10 +309,10 @@ section.block { padding-block: 104px; }
 .catalog .name { font: 600 1.05rem/1.3 var(--display); color: var(--text); }
 .catalog .emu { font: 400 0.88rem/1.3 var(--mono); color: var(--soft); }
 .catalog .state { font: 500 0.75rem/1 var(--mono); color: var(--muted); }
-.catalog li:hover { background: rgba(247,196,103,.05); }
+.catalog li:hover { background: var(--amber-hover); }
 .catalog li:hover .lg { color: var(--text); transform: translateX(4px); }
 .catalog li:hover .yr { transform: translateX(2px); }
-.catalog li.on { background: rgba(91, 224, 164, .05); }
+.catalog li.on { background: var(--ok-wash); }
 .catalog li.on .lg { color: var(--text); }
 .catalog li.on .state { color: var(--ok); }
 @media (max-width: 720px) {
@@ -276,7 +328,7 @@ section.block { padding-block: 104px; }
 }
 
 .revive { margin-top: 48px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
-.revive > div { padding: 24px; border-radius: var(--radius); border: 1px solid var(--amber-line); background: rgba(11,13,18,.45); display: grid; gap: 8px; align-content: start; min-width: 0; }
+.revive > div { padding: 24px; border-radius: var(--radius); border: 1px solid var(--amber-line); background: var(--sheet); display: grid; gap: 8px; align-content: start; min-width: 0; }
 .revive h3 { font-size: 1.05rem; font-weight: 600; }
 .revive p { color: var(--muted); font-size: 0.95rem; }
 @media (max-width: 760px) { .revive { grid-template-columns: minmax(0, 1fr); } }
@@ -346,7 +398,7 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
   @keyframes rise { from { opacity: .25; transform: translateY(22px); } to { opacity: 1; transform: none; } }
   @keyframes pop { from { opacity: .3; translate: 0 16px; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
   @keyframes float { 0%, 100% { transform: translateZ(40px) translateY(0); } 50% { transform: translateZ(40px) translateY(-8px); } }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(91, 224, 164, .55); } 100% { box-shadow: 0 0 0 8px rgba(91, 224, 164, 0); } }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--ok-ring); } 100% { box-shadow: 0 0 0 8px transparent; } }
   @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(-120px, 60px) scale(1.15); } }
   @keyframes marquee { to { transform: translateX(-50%); } }
 
@@ -359,7 +411,7 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
   /* L'en-tête se densifie dès qu'on quitte le haut de page */
   @supports (animation-timeline: scroll()) {
     .top { animation: head linear both; animation-timeline: scroll(); animation-range: 0 140px; }
-    @keyframes head { from { background: rgba(11, 13, 18, 0); border-bottom-color: rgba(34, 39, 52, 0); } to { background: rgba(11, 13, 18, .82); border-bottom-color: var(--line); } }
+    @keyframes head { from { background: transparent; border-bottom-color: transparent; } to { background: var(--glass); border-bottom-color: var(--line); } }
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -413,6 +465,10 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
       <a href="#manette">Manette</a>
       <a href="#essayer">Essayer</a>
     </nav>
+    <button class="theme-toggle" id="theme" type="button" aria-label="Changer de thème">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+    </button>
     <a class="btn btn-primary" href="#essayer"><svg><use href="#i-dl"/></svg>Essayer</a>
   </div>
 </header>
@@ -647,6 +703,21 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
 
 <script>
 (() => {
+  // Thème : suit le système tant que le visiteur n'a pas choisi, puis retient son choix
+  const root = document.documentElement
+  const toggle = document.getElementById('theme')
+  const systemLight = matchMedia('(prefers-color-scheme: light)')
+  const current = () => root.dataset.theme || (systemLight.matches ? 'light' : 'dark')
+  const label = () => toggle.setAttribute('aria-label', current() === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre')
+  label()
+  systemLight.addEventListener('change', label)
+  toggle.addEventListener('click', () => {
+    const next = current() === 'dark' ? 'light' : 'dark'
+    root.dataset.theme = next
+    try { localStorage.setItem('ludora-theme', next) } catch (e) {}
+    label()
+  })
+
   // Chrono de la session en cours dans l'aperçu
   const clock = document.getElementById('clock')
   let secs = 1 * 3600 + 12 * 60 + 5
