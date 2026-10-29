@@ -224,49 +224,53 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 }
 
 /* ---------- Orbite : huit launchers qui convergent vers Ludora ---------- */
-@property --k { syntax: '<number>'; inherits: true; initial-value: 1; }
 @property --spin { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
 .hub { padding-block: 40px 24px; }
 .hub-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 48px; align-items: center; }
 .hub-text { display: grid; gap: 16px; }
 .hub-text p:last-child { color: var(--muted); font-size: 1.05rem; max-width: 32em; }
-.orbit { position: relative; height: 440px; --r: min(36vw, 230px); }
+.orbit { position: relative; isolation: isolate; height: 500px; --r: min(36vw, 196px); }
 .orbit::before {
-  content: ""; position: absolute; left: 50%; top: 50%;
-  width: calc(var(--r) * 2 * var(--k)); height: calc(var(--r) * 1.56 * var(--k));
+  content: ""; position: absolute; left: 50%; top: 50%; z-index: -2;
+  width: calc(var(--r) * 2); height: calc(var(--r) * 2);
   translate: -50% -50%; border-radius: 50%;
-  border: 1px dashed var(--line); opacity: var(--k);
+  border: 1px dashed var(--line);
 }
 .core {
   position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 1;
   width: 96px; height: 96px; border-radius: 26px;
-  scale: calc(1 + (1 - var(--k)) * .25);
-  box-shadow: 0 0 0 calc((1 - var(--k)) * 22px) var(--accent-soft), 0 24px 60px -16px var(--glow);
+  box-shadow: 0 0 0 10px var(--accent-soft), 0 24px 60px -16px var(--glow);
 }
+.core::after { content: ""; position: absolute; inset: -12px; border-radius: 34px; border: 2px solid var(--accent); opacity: 0; }
 .core img { display: block; width: 100%; height: 100%; border-radius: 26px; }
 .sat {
   --a: calc(var(--i) * 45deg + var(--spin) - 90deg);
   position: absolute; left: 50%; top: 50%;
-  translate: calc(-50% + cos(var(--a)) * var(--r) * var(--k)) calc(-50% + sin(var(--a)) * var(--r) * .78 * var(--k));
-  scale: calc(.3 + .7 * var(--k));
-  opacity: clamp(0, calc(var(--k) * 2.4), 1);
+  translate: calc(-50% + cos(var(--a)) * var(--r)) calc(-27px + sin(var(--a)) * var(--r));
   display: grid; justify-items: center; gap: 6px;
+}
+/* Câbles entre chaque launcher et Ludora, avec les données qui circulent vers le centre */
+.link {
+  --a: calc(var(--i) * 45deg + var(--spin) - 90deg);
+  position: absolute; left: 50%; top: 50%; z-index: -1;
+  width: calc(var(--r) - 28px); height: 2px;
+  transform-origin: 0 50%; translate: 0 -50%; rotate: var(--a);
+  background: repeating-linear-gradient(90deg, var(--accent-line) 0 6px, transparent 6px 11px);
+}
+.link::after {
+  content: ""; position: absolute; top: 50%; left: 100%; width: 8px; height: 8px; margin: -4px 0 0 -4px;
+  border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); opacity: 0;
 }
 .sat b { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 15px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 12px 24px -14px var(--shadow); color: var(--text); }
 .sat svg { width: 26px; height: 26px; fill: currentColor; }
 .sat small { font: 500 0.68rem/1 var(--mono); color: var(--muted); white-space: nowrap; }
 @media (max-width: 900px) { .hub-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
-@media (max-width: 560px) { .orbit { height: 330px; --r: min(34vw, 150px); } .sat small { display: none; } .sat b { width: 46px; height: 46px; } .sat svg { width: 22px; height: 22px; } .core { width: 78px; height: 78px; } }
+@media (max-width: 560px) { .orbit { height: 360px; --r: min(36vw, 140px); } .sat small { display: none; } .sat b { width: 46px; height: 46px; } .sat svg { width: 22px; height: 22px; } .core { width: 78px; height: 78px; } }
 
 /* Titre du héros : soulignement de « une seule » */
 .hero h1 .w { display: inline-block; }
 .hero h1 em { position: relative; }
 .hero h1 em::after { content: ""; position: absolute; left: 0; right: 0; bottom: .02em; height: .08em; border-radius: .04em; background: var(--accent); opacity: .5; transform-origin: left; }
-
-/* Registre : chaque service fermé est barré */
-.ledger b { display: inline-block; position: relative; }
-.ledger b + span { display: block; }
-.ledger b::after { content: ""; position: absolute; left: -2px; right: -2px; top: 54%; height: 1.5px; background: var(--amber); opacity: .85; transform-origin: left; }
 
 /* Catalogue : ligne du temps le long des années */
 .catalog { position: relative; }
@@ -322,7 +326,14 @@ section.block { padding-block: 104px; }
 .ledger li:hover { background: var(--amber-hover); padding-left: 24px; }
 .ledger li:last-child { border-bottom: 0; }
 .ledger time { font: 500 0.8rem/1.5 var(--mono); color: var(--amber); font-variant-numeric: tabular-nums; }
-.ledger b { display: block; color: var(--text); font-weight: 600; font-size: 0.95rem; }
+/* Chaque service fermé est barré : trait dessiné sur le texte lui-même, tracé d'un geste à l'apparition */
+.ledger b {
+  color: var(--text); font-weight: 600; font-size: 0.95rem;
+  background: linear-gradient(var(--amber), var(--amber)) no-repeat 0 58% / 100% 1.5px;
+  transition: background-size .8s var(--ease) .15s;
+}
+.strike-js .ledger li:not(.struck) b { background-size: 0% 1.5px; }
+.ledger b + span { display: block; }
 .ledger span { color: var(--muted); font-size: 0.85rem; }
 
 /* Catalogue chronologique des systèmes */
@@ -390,7 +401,11 @@ section.block { padding-block: 104px; }
 @media (max-width: 520px) { .modes-head { display: none; } .modes dl > div { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
 
 /* ---------- Essayer ---------- */
-.dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.dl .soon { display: grid; gap: 6px; padding: 24px; border-radius: var(--radius); border: 1px dashed var(--line); }
+.dl .soon .os, .dl .soon .os svg { color: var(--muted); }
+.dl .os svg { fill: currentColor; }
+.dl .soon .file b { color: var(--muted); }
 .dl a {
   display: grid; gap: 6px; padding: 24px; border-radius: var(--radius);
   border: 1px solid var(--line); background: var(--panel); text-decoration: none;
@@ -423,22 +438,23 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
   .hero h1 em::after { animation: draw .8s var(--ease) .75s both; }
   .stage { animation: rise 1s var(--ease) .15s both; }
   .orbit { animation: spin 90s linear infinite; }
+  .link { animation: flow .9s linear infinite; }
+  .link::after { animation: packet 3.2s cubic-bezier(.5, 0, .9, .6) infinite; animation-delay: calc(var(--i) * .4s); }
+  .core::after { animation: ring 3.2s ease-out infinite; }
+  @keyframes flow { to { background-position: -11px 0; } }
+  @keyframes packet { 0% { left: 100%; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { left: 0; opacity: 0; } }
+  @keyframes ring { 0% { opacity: .55; scale: .92; } 100% { opacity: 0; scale: 1.3; } }
   @keyframes word { from { opacity: .15; translate: 0 .4em; filter: blur(6px); } to { opacity: 1; translate: 0 0; filter: blur(0); } }
   @keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @keyframes spin { to { --spin: 360deg; } }
-  @keyframes converge { from { --k: 1; } to { --k: 0; } }
   @keyframes hero-out { to { translate: 0 -90px; opacity: .15; } }
   @keyframes stage-out { to { translate: 0 -40px; scale: .92; } }
-  @keyframes strike { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
   /* Motion piloté par le défilement */
   @supports (animation-timeline: view()) {
     .hero .intro { animation: hero-out linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
     .stage { animation: rise 1s var(--ease) .15s both, stage-out linear both; animation-timeline: auto, view(); animation-range: normal, exit 0% exit 100%; }
-    .orbit { animation: spin 90s linear infinite, converge linear both; animation-timeline: auto, view(); animation-range: normal, cover 30% cover 68%; }
-    .ledger li { view-timeline: --row; }
-    .ledger b::after { animation: strike linear both; animation-timeline: --row; animation-range: entry 70% cover 50%; }
     .catalog { view-timeline: --cat; }
     .catalog::before { animation: grow linear both; animation-timeline: --cat; animation-range: entry 40% cover 80%; }
   }
@@ -498,6 +514,7 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
   <symbol id="l-nintendo3ds" viewBox="0 0 24 24"><path d="M17.653 16.63a.712.712 0 1 0 1.424 0 .712.712 0 1 0-1.424 0m-9.45 4.238h7.575c.3 0 .524-.225.544-.524v-5.175c-.02-.282-.263-.525-.544-.507H8.203a.54.54 0 0 0-.544.525v5.156c0 .301.244.525.544.525zm13.051-3.525a.729.729 0 0 0 .73-.729.73.73 0 1 0-.73.729zm-1.443-.019a.714.714 0 1 0 .001 1.427.714.714 0 0 0-.001-1.427zm-.713-2.137a.712.712 0 1 0 1.424 0 .712.712 0 1 0-1.424 0M2.54 16.612a1.65 1.65 0 1 0 3.3 0 1.65 1.65 0 1 0-3.3 0M21.272 0H2.728A2.73 2.73 0 0 0-.01 2.72v18.542C.009 22.781 1.228 24 2.728 24h18.526a2.753 2.753 0 0 0 2.756-2.719V2.737C23.991 1.219 22.772 0 21.272 0zm1.913 21.281a1.92 1.92 0 0 1-1.912 1.912H2.728a1.92 1.92 0 0 1-1.913-1.912v-8.456h22.369v8.456zm0-9.694H.815v-8.85A1.92 1.92 0 0 1 2.728.824h18.544c1.049 0 1.912.863 1.912 1.913v8.85 M17.409 3.112H6.534c-.3 0-.544.263-.544.563V9.15c0 .3.226.563.544.563h10.875a.548.548 0 0 0 .544-.563V3.656a.543.543 0 0 0-.544-.544z"/></symbol>
   <symbol id="l-wiiu" viewBox="0 0 24 24"><path d="M11.133 8.432c-.465 0-.835.359-.835.814.007.454.381.817.835.812.488 0 .873-.358.873-.81 0-.455-.385-.816-.873-.816zm2.93 0c-.465 0-.848.359-.848.814 0 .442.383.812.848.812.477 0 .861-.358.861-.81 0-.455-.385-.816-.861-.816zm3.655.011c-.53 0-.99.335-.99.858v3.315c0 .809.56 1.289 1.377 1.289h4.647c.689 0 1.248-.477 1.248-1.162V9.345c0-.412-.308-.86-.688-.86h-1.075v2.799c0 2.122-3.701 2.104-3.701.04v-2.88h-.818zm1.679 0v2.453c0 1.636 1.934 1.402 1.934.256V8.445h-1.934v-.002zM4.833 8.77c-.465 0-.776.232-.938.756-.152.533-1.116 4.242-1.116 4.242l-1.267-4.94H0s1.451 5.264 1.65 5.881c.15.476.521.86 1.058.86.627 0 .917-.454 1.045-.86.14-.421 1.08-3.895 1.08-3.895s.942 3.476 1.069 3.895c.14.406.431.86 1.047.86.547 0 .906-.385 1.07-.86.196-.617 1.65-5.881 1.65-5.881H8.148l-1.258 4.94s-.963-3.709-1.125-4.242c-.15-.526-.479-.756-.93-.756h-.002zm5.605 2.09v4.662h1.441V10.86h-1.441zm2.916 0v4.662h1.442V10.86h-1.442z"/></symbol>
   <symbol id="l-nintendoswitch" viewBox="0 0 24 24"><path d="M14.176 24h3.674c3.376 0 6.15-2.774 6.15-6.15V6.15C24 2.775 21.226 0 17.85 0H14.1c-.074 0-.15.074-.15.15v23.7c-.001.076.075.15.226.15zm4.574-13.199c1.351 0 2.399 1.125 2.399 2.398 0 1.352-1.125 2.4-2.399 2.4-1.35 0-2.4-1.049-2.4-2.4-.075-1.349 1.05-2.398 2.4-2.398zM11.4 0H6.15C2.775 0 0 2.775 0 6.15v11.7C0 21.226 2.775 24 6.15 24h5.25c.074 0 .15-.074.15-.149V.15c.001-.076-.075-.15-.15-.15zM9.676 22.051H6.15c-2.326 0-4.201-1.875-4.201-4.201V6.15c0-2.326 1.875-4.201 4.201-4.201H9.6l.076 20.102zM3.75 7.199c0 1.275.975 2.25 2.25 2.25s2.25-.975 2.25-2.25c0-1.273-.975-2.25-2.25-2.25s-2.25.977-2.25 2.25z"/></symbol>
+  <symbol id="l-linux" viewBox="0 0 24 24"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></symbol>
   <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
   <symbol id="i-lib" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
@@ -579,6 +596,8 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
   <section class="hub" aria-labelledby="hub-title">
     <div class="wrap hub-grid">
       <div class="orbit" aria-hidden="true">
+        <span class="link" style="--i:0"></span><span class="link" style="--i:1"></span><span class="link" style="--i:2"></span><span class="link" style="--i:3"></span>
+        <span class="link" style="--i:4"></span><span class="link" style="--i:5"></span><span class="link" style="--i:6"></span><span class="link" style="--i:7"></span>
         <div class="core"><img src="img/logo.svg" alt=""></div>
         <span class="sat" style="--i:0"><b><svg><use href="#l-steam"/></svg></b><small>Steam</small></span>
         <span class="sat" style="--i:1"><b><svg><use href="#l-epicgames"/></svg></b><small>Epic Games</small></span>
@@ -730,6 +749,11 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
           <span class="det">Mac avec processeur Intel</span>
           <span class="file"><span>AppJeux-Demo-0.9.10-macOS-Intel.zip</span><b>222 Mo<svg><use href="#i-dl"/></svg></b></span>
         </a>
+        <div class="soon reveal">
+          <span class="os"><svg><use href="#l-linux"/></svg>Linux</span>
+          <span class="det">AppImage pour Ubuntu, Debian, Fedora et les autres distributions</span>
+          <span class="file"><span>AppImage · x64</span><b>Bientôt disponible</b></span>
+        </div>
       </div>
       <p class="dl-note">Exécutables non signés : sous Windows, cliquez sur <em>Informations complémentaires</em> puis <em>Exécuter quand même</em>. Sous macOS, faites clic droit puis <em>Ouvrir</em> au premier lancement.</p>
     </div>
@@ -759,6 +783,19 @@ footer .wrap { padding-block: 32px; display: flex; flex-wrap: wrap; gap: 10px 28
     try { localStorage.setItem('ludora-theme', next) } catch (e) {}
     label()
   })
+
+  // Registre : chaque service se fait barrer en entier quand sa ligne devient visible
+  if ('IntersectionObserver' in window) {
+    root.classList.add('strike-js')
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return
+        e.target.classList.add('struck')
+        io.unobserve(e.target)
+      })
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.6 })
+    document.querySelectorAll('.ledger li').forEach((row) => io.observe(row))
+  }
 
   // Chrono de la session en cours dans l'aperçu
   const clock = document.getElementById('clock')
